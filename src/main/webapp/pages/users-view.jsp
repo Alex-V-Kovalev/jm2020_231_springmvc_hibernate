@@ -12,5 +12,7 @@
 </head>
 <body>
 
+<a href="/edit">Edit information about user.</a>
+
 </body>
 </html>
