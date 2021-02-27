@@ -11,6 +11,16 @@ public class User {
     private int age;
 
 
+    public User() {
+    }
+
+    public User(Long id, String firstName, String lastName, int age) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -56,15 +66,16 @@ public class User {
         if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
         return lastName != null ? lastName.equals(user.lastName) : user.lastName == null;
     }
-
     @Override
     public int hashCode() {
+
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + age;
         return result;
     }
+
 
     @Override
     public String toString() {
