@@ -12,6 +12,6 @@ public class UserController {
 
     @RequestMapping(value = "/edit")
     public String getEditUserPage() {
-        return "user-edit-page";
+        return "user-edit-view";
     }
 }
