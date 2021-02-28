@@ -5,7 +5,9 @@ import application.springmvc_hibernate.model.User;
 import java.util.List;
 
 public interface UserDao {
-    void save(User user);
+    void create(User user);
+
+    void update(User user);
 
     void delete(User user);
 

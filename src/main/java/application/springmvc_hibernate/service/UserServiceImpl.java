@@ -1,17 +1,29 @@
 package application.springmvc_hibernate.service;
 
 import application.springmvc_hibernate.dao.UserDao;
-import application.springmvc_hibernate.dao.UserDaoImpl;
 import application.springmvc_hibernate.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class UserServiceImpl implements UserService{
-    private UserDao userDao = new UserDaoImpl();
+    private UserDao userDao;
+
+    @Autowired
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @Override
-    public void save(User user) {
-        userDao.save(user);
+    public void create(User user) {
+        userDao.create(user);
+    }
+
+    @Override
+    public void update(User user) {
+        userDao.update(user);
     }
 
     @Override

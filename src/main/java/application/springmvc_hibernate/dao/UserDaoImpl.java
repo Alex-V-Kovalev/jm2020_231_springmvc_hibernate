@@ -1,6 +1,7 @@
 package application.springmvc_hibernate.dao;
 
 import application.springmvc_hibernate.model.User;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class UserDaoImpl implements UserDao{
+@Repository
+public class UserDaoImpl implements UserDao {
     private static final AtomicInteger AUTO_ID = new AtomicInteger(0);
     private static Map<Long, User> users = new HashMap<>();
 
@@ -31,7 +33,13 @@ public class UserDaoImpl implements UserDao{
     }
 
     @Override
-    public void save(User user) {
+    public void create(User user) {
+        user.setId((long) AUTO_ID.getAndIncrement());
+        update(user);
+    }
+
+    @Override
+    public void update(User user) {
         users.put(user.getId(), user);
     }
 
