@@ -1,60 +1,70 @@
 package application.springmvc_hibernate.dao;
 
 import application.springmvc_hibernate.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class UserDaoImpl implements UserDao {
-    private static final AtomicInteger AUTO_ID = new AtomicInteger(0);
-    private static Map<Long, User> users = new HashMap<>();
+    private final EntityManagerFactory entityManagerFactory;
 
-    static {
-        User user;
-        user = new User((long) AUTO_ID.getAndIncrement(), "Ivan", "Petrov", 27);
-        users.put(user.getId(), user);
-        user = new User((long) AUTO_ID.getAndIncrement(), "Stepan", "Sidorov", 29);
-        users.put(user.getId(), user);
-        user = new User((long) AUTO_ID.getAndIncrement(), "Саша", "Иванов", 30);
-        users.put(user.getId(), user);
-        user = new User((long) AUTO_ID.getAndIncrement(), "Вася", "Филимонов", 45);
-        users.put(user.getId(), user);
-        user = new User((long) AUTO_ID.getAndIncrement(), "John", "McClane", 34);
-        users.put(user.getId(), user);
-        user = new User((long) AUTO_ID.getAndIncrement(), "Федя", "Степанов", 22);
-        users.put(user.getId(), user);
-        user = new User((long) AUTO_ID.getAndIncrement(), "Улукбек", "Закиров", 64);
-        users.put(user.getId(), user);
+    @Autowired
+    public UserDaoImpl(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean) {
+        this.entityManagerFactory = entityManagerFactoryBean.getNativeEntityManagerFactory();
+    }
+
+    private void commitTransactionAndCloaseEntityManager(EntityManager entityManager) {
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+
+    private EntityManager getEntityManagerAndStartTransaction() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        return entityManager;
     }
 
     @Override
     public void create(User user) {
-        user.setId((long) AUTO_ID.getAndIncrement());
-        update(user);
+        EntityManager entityManager = getEntityManagerAndStartTransaction();
+        entityManager.persist(user);
+        commitTransactionAndCloaseEntityManager(entityManager);
     }
 
     @Override
     public void update(User user) {
-        users.put(user.getId(), user);
+        EntityManager entityManager = getEntityManagerAndStartTransaction();
+        entityManager.merge(user);
+        commitTransactionAndCloaseEntityManager(entityManager);
     }
 
+    @Transactional
     @Override
     public void delete(User user) {
-        users.remove(user.getId());
+        EntityManager entityManager = getEntityManagerAndStartTransaction();
+        entityManager.remove(entityManager.contains(user) ? user : entityManager.merge(user));
+        commitTransactionAndCloaseEntityManager(entityManager);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        EntityManager entityManager = getEntityManagerAndStartTransaction();
+        List<User> result = entityManager.createQuery("from User order by id", User.class).getResultList();
+        commitTransactionAndCloaseEntityManager(entityManager);
+        return result;
     }
 
     @Override
     public User getUserById(long id) {
-        return users.get(id);
+        EntityManager entityManager = getEntityManagerAndStartTransaction();
+        User user = entityManager.find(User.class, id);
+        commitTransactionAndCloaseEntityManager(entityManager);
+        return user;
     }
 }

@@ -14,7 +14,7 @@
         table {
             font-family: arial, sans-serif;
             border-collapse: collapse;
-            width: 100%;
+            width: 80%;
         }
 
         td, th {
@@ -32,18 +32,20 @@
 <h2>Users list</h2>
 <table>
     <tr>
-        <th>id</th>
-        <th>Имя</th>
-        <th>Фамилия</th>
-        <th>Возраст</th>
-        <th>Изменить/Удалить</th>
+        <th width="10%">id</th>
+        <th width="30%">Имя</th>
+        <th width="20%">Телефон</th>
+        <th width="10%">Квартира</th>
+        <th width="10%">Количество счетчиков</th>
+        <th width="10%">Изменить/Удалить</th>
     </tr>
     <c:forEach var="user" items="${usersList}">
         <tr>
             <td>${user.id}</td>
-            <td>${user.firstName}</td>
-            <td>${user.lastName}</td>
-            <td>${user.age}</td>
+            <td>${user.userName}</td>
+            <td>${user.phoneNumber}</td>
+            <td>${user.flatNum}</td>
+            <td>${user.numCount}</td>
             <td>
                 <a href="/edit/${user.id}">edit</a>
                 <a href="/delete/${user.id}">delete</a>

@@ -3,12 +3,15 @@ package application.springmvc_hibernate.config;
 import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -16,43 +19,52 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@ComponentScan(basePackages = "application.springmvc_hibernate")
 @PropertySource(value = "classpath:db.property")
 public class HibernateConfig {
-    private Environment env;
+    private Environment environment;
 
     @Autowired
-    public void setEnv(Environment env) {
-        this.env = env;
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource getDataSource() {
         BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(env.getRequiredProperty("db.driverClassName"));
-        dataSource.setUrl(env.getRequiredProperty("db.url"));
-        dataSource.setUsername(env.getRequiredProperty("db.username"));
-        dataSource.setPassword(env.getRequiredProperty("db.password"));
+        dataSource.setDriverClassName(environment.getRequiredProperty("db.driverClassName"));
+        dataSource.setUrl(environment.getRequiredProperty("db.url"));
+        dataSource.setUsername(environment.getRequiredProperty("db.username"));
+        dataSource.setPassword(environment.getRequiredProperty("db.password"));
         return dataSource;
     }
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan("application.springmvc_hibernate.model");
+    public LocalContainerEntityManagerFactoryBean getEntityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean entityManagerFactory
+                = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactory.setDataSource(getDataSource());
+        entityManagerFactory.setPackagesToScan("application.springmvc_hibernate");
+
+        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        entityManagerFactory.setJpaVendorAdapter(vendorAdapter);
+
         Properties properties = new Properties();
-        properties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
-        properties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
-        properties.put("hibernate.hbm2ddl.auto", env.getRequiredProperty("hibernate.hbm2ddl.auto"));
-        sessionFactory.setHibernateProperties(properties);
-        return sessionFactory;
+        properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
+        properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
+        properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("hibernate.hbm2ddl.auto"));
+        entityManagerFactory.setJpaProperties(properties);
+        return entityManagerFactory;
+    }
+    @Bean
+    public PlatformTransactionManager getTransactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(getEntityManagerFactory().getObject());
+
+        return transactionManager;
     }
 
     @Bean
-    public HibernateTransactionManager transactionManager() {
-        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-        transactionManager.setSessionFactory(sessionFactory().getObject());
-        return transactionManager;
+    public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
+        return new PersistenceExceptionTranslationPostProcessor();
     }
 }

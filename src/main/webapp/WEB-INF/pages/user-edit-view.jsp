@@ -5,7 +5,7 @@
   Time: 00:35
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
@@ -32,16 +32,20 @@
             <legend>Редактирование пользователя</legend>
         </c:if>
         <input type="hidden" name="id" value="${user.id}">
-        <label for="firstName">Имя</label>
-        <input type="text" name="firstName" id="firstName">
+        <label for="userName">Имя</label>
+        <input type="text" name="userName" id="userName" value="${user.userName}">
         <br/>
         <br/>
-        <label for="lastName">Фамилия</label>
-        <input type="text" name="lastName" id="lastName">
+        <label for="phoneNumber">Телефон</label>
+        <input type="text" name="phoneNumber" id="phoneNumber" value="${user.phoneNumber}">
         <br/>
         <br/>
-        <label for="age">Возраст</label>
-        <input type="text" name="age" id="age">
+        <label for="flatNum">Квартира</label>
+        <input type="text" name="flatNum" id="flatNum" value="${user.flatNum}">
+        <br/>
+        <br/>
+        <label for="numCount">Количество счетчиков</label>
+        <input type="text" name="numCount" id="numCount"  value="${user.numCount}">
         <br/>
         <br/>
         <c:if test="${user.id == null}">
